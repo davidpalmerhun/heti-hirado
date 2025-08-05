@@ -4,10 +4,10 @@
   <meta charset="UTF-8">
   <title>Heti Híradó</title>
 
-  <!--  ===== Firebase “compat” CDN-ek  =====  -->
-  <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-storage.js"></script>
+  <!--  Firebase “compat” CDN – NEM module, NEM import!  -->
+  <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-storage-compat.js"></script>
 
   <style>
     body{font-family:"Segoe UI",Roboto,Arial,sans-serif;background:#f5f5f5;margin:0;padding:24px;display:flex;justify-content:center}
@@ -15,7 +15,7 @@
     h1{text-align:center;margin:0 0 24px}
     .project{background:#fff;border:1px solid #ccc;border-radius:6px;padding:20px;margin-bottom:24px;position:relative}
     .row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
-    .controls-row{display:flex;gap:10px;align-items:center;margin-top:6px;width:100%}
+    .controls-row{display:flex;gap:10px;align-items:center;margin-top:5px;width:100%}
     input[type=text],textarea,select{padding:6px;border:1px solid #ccc;border-radius:4px;font-size:14px}
     textarea{width:100%;resize:vertical;min-height:60px}
     .link-input{flex:1 1 300px}
@@ -43,7 +43,7 @@
       apiKey:            "AIzaSyDn12dx4VO5COB2_eu7OCOusmT4z-NwdDA",
       authDomain:        "heti-hirado.firebaseapp.com",
       projectId:         "heti-hirado",
-      storageBucket:     "heti-hirado.appspot.com",   //  fontos: .appspot.com
+      storageBucket:     "heti-hirado.appspot.com",   // ← .appspot.com fontos!
       messagingSenderId: "672469992573",
       appId:             "1:672469992573:web:3c062fa37a4694c1c89d14",
       measurementId:     "G-HRR8CCEJMT"
@@ -53,128 +53,104 @@
     const storage = firebase.storage();
 
     /* ---------- Realtime megjelenítés ---------- */
-    const projectsCol = db.collection("projects");
-
-    projectsCol.orderBy("created").onSnapshot(snap=>{
-      const c = document.getElementById('container');
-      c.innerHTML='';
-      snap.forEach(d=>c.appendChild(renderProject(d)));
+    const col=db.collection("projects");
+    col.orderBy("created").onSnapshot(s=>{
+      const c=document.getElementById('container'); c.innerHTML='';
+      s.forEach(d=>c.appendChild(renderProject(d)));
     });
 
-    /* ---------- UI-rajzoló függvények ---------- */
+    /* ---------- UI-rajzolók ---------- */
     function renderProject(doc){
-      const p = doc.data(), id = doc.id;
-      const el = document.createElement('div'); el.className='project';
-
-      el.innerHTML = `
+      const p=doc.data(), id=doc.id;
+      const el=document.createElement('div'); el.className='project';
+      el.innerHTML=`
         <div class="row three-input-row">
-          <input type="text" value="${p.organizer||''}" placeholder="Szervező neve"
-                 onblur="updateField('${id}','organizer',this.value)">
+          <input type="text" value="${p.organizer||''}" placeholder="Szervező"
+                 onblur="upd('${id}','organizer',this.value)">
           <input type="text" value="${p.city||''}" placeholder="Város"
-                 onblur="updateField('${id}','city',this.value)">
-          <input type="text" id="link-${id}" class="link-input" value="${p.link||''}" placeholder="Link (pl. https://...)"
-                 onblur="updateField('${id}','link',this.value)">
+                 onblur="upd('${id}','city',this.value)">
+          <input type="text" id="link-${id}" class="link-input" value="${p.link||''}"
+                 placeholder="Link" onblur="upd('${id}','link',this.value)">
           <button class="button" onclick="openLink('link-${id}')">Megnyitás</button>
         </div>
         <div id="notes-${id}"></div>
         <button class="button" onclick="addNote('${id}')">+ Vázlatpont</button>
-        <button class="delete-btn" onclick="deleteProject('${id}')" title="Projekt törlése">×</button>
-      `;
-
-      /* vázlatpontok */
-      const notesWrap = el.querySelector(`#notes-${id}`);
-      (p.notes||[]).forEach((n,i)=>notesWrap.appendChild(renderNote(id,i,n)));
-
+        <button class="delete-btn" onclick="delProj('${id}')" title="Projekt törlése">×</button>`;
+      const wrap=el.querySelector(`#notes-${id}`);
+      (p.notes||[]).forEach((n,i)=>wrap.appendChild(renderNote(id,i,n)));
       return el;
     }
-
-    function renderNote(pid, idx, n){
-      const w = document.createElement('div'); w.className='note';
-      w.innerHTML = `
-        <button class="delete-btn" onclick="deleteNote('${pid}',${idx})" title="Vázlat törlése">×</button>
-        <textarea onblur="updateNote('${pid}',${idx},this.value)">${n.text||''}</textarea>
+    function renderNote(pid,i,n){
+      const w=document.createElement('div'); w.className='note';
+      w.innerHTML=`
+        <button class="delete-btn" onclick="delNote('${pid}',${i})">×</button>
+        <textarea onblur="updNote('${pid}',${i},this.value)">${n.text||''}</textarea>
         <div class="controls-row">
-          <button class="button" onclick="addComment('${pid}',${idx})">Kommentálom</button>
-          <div class="uploaded-files">${renderFiles(pid,idx,n.files)}</div>
-          <input type="file" multiple onchange="uploadFiles(this,'${pid}',${idx})">
+          <button class="button" onclick="addComm('${pid}',${i})">Kommentálom</button>
+          <div class="uploaded-files">${filesHTML(pid,i,n.files)}</div>
+          <input type="file" multiple onchange="upload(this,'${pid}',${i})">
         </div>
-        <div>${renderComments(pid,idx,n.comments)}</div>
-      `;
+        <div>${commentsHTML(pid,i,n.comments)}</div>`;
       return w;
     }
+    const filesHTML=(pid,i,f)=>(f||[]).map((o,j)=>`
+      <span><a href="${o.url}" target="_blank">${o.name}</a>
+        <button onclick="remFile('${pid}',${i},${j})">✕</button></span>`).join('');
+    const commentsHTML=(pid,i,c)=>(c||[]).map((o,j)=>`
+      <div class="comment-thread"><button class="delete-btn"
+        onclick="delComm('${pid}',${i},${j})">×</button><b>${o.name}</b>: ${o.text}</div>`).join('');
 
-    const renderFiles=(pid,idx,arr)=> (arr||[]).map((f,i)=>`
-        <span>
-          <a href="${f.url}" target="_blank">${f.name}</a>
-          <button onclick="removeFile('${pid}',${idx},${i})">✕</button>
-        </span>`).join('');
+    /* ---------- CRUD függvények ---------- */
+    window.addProject=()=>col.add({organizer:'',city:'',link:'',notes:[],created:firebase.firestore.FieldValue.serverTimestamp()});
+    window.delProj =id          =>confirm('Törlöd?')&&col.doc(id).delete();
+    window.upd     =(id,f,v)    =>col.doc(id).update({[f]:v});
 
-    const renderComments=(pid,idx,arr)=> (arr||[]).map((c,i)=>`
-        <div class="comment-thread">
-          <button class="delete-btn" onclick="deleteComment('${pid}',${idx},${i})">×</button>
-          <b>${c.name}</b>: ${c.text}
-        </div>`).join('');
-
-    /* ---------- CRUD műveletek ---------- */
-    /* Projekt */
-    function addProject(){
-      projectsCol.add({organizer:'',city:'',link:'',notes:[],created:firebase.firestore.FieldValue.serverTimestamp()});
-    }
-    function deleteProject(id){ confirm('Törlöd?')&&projectsCol.doc(id).delete(); }
-    function updateField(id,f,v){ projectsCol.doc(id).update({[f]:v}); }
-
-    /* Vázlatpont */
-    async function addNote(pid){
-      const d = await projectsCol.doc(pid).get(), notes=d.data().notes||[];
-      notes.push({text:'',files:[],comments:[]});
-      projectsCol.doc(pid).update({notes});
-    }
-    async function updateNote(pid,idx,val){
-      const d=await projectsCol.doc(pid).get(), notes=d.data().notes||[];
-      notes[idx].text=val; projectsCol.doc(pid).update({notes});
-    }
-    async function deleteNote(pid,idx){
+    window.addNote =async(pid)=>{
+      const d=await col.doc(pid).get(), n=d.data().notes||[];
+      n.push({text:'',files:[],comments:[]}); col.doc(pid).update({notes:n});
+    };
+    window.updNote =async(pid,i,val)=>{
+      const d=await col.doc(pid).get(), n=d.data().notes||[];
+      n[i].text=val; col.doc(pid).update({notes:n});
+    };
+    window.delNote =async(pid,i)=>{
       if(!confirm('Törlöd a vázlatot?'))return;
-      const d=await projectsCol.doc(pid).get(), notes=d.data().notes||[];
-      notes.splice(idx,1); projectsCol.doc(pid).update({notes});
-    }
+      const d=await col.doc(pid).get(), n=d.data().notes||[];
+      n.splice(i,1); col.doc(pid).update({notes:n});
+    };
 
-    /* Fájlok */
-    async function uploadFiles(inp,pid,idx){
-      const d=await projectsCol.doc(pid).get(), notes=d.data().notes||[];
-      const list=notes[idx].files||[];
-      for(const file of inp.files){
-        const ref=storage.ref(`projects/${pid}/${idx}-${file.name}`);
-        await ref.put(file); const url=await ref.getDownloadURL();
-        list.push({name:file.name,url});
+    window.upload  =async(inp,pid,i)=>{
+      const files=inp.files; if(!files.length)return;
+      const d=await col.doc(pid).get(), n=d.data().notes||[];
+      for(const f of files){
+        const ref=storage.ref(`projects/${pid}/${i}-${f.name}`);
+        await ref.put(f); const url=await ref.getDownloadURL();
+        n[i].files.push({name:f.name,url});
       }
-      notes[idx].files=list; projectsCol.doc(pid).update({notes}); inp.value='';
-    }
-    async function removeFile(pid,idx,i){
-      const d=await projectsCol.doc(pid).get(), notes=d.data().notes||[];
-      const file=notes[idx].files[i]; if(!file)return;
-      await storage.refFromURL(file.url).delete();
-      notes[idx].files.splice(i,1); projectsCol.doc(pid).update({notes});
-    }
+      col.doc(pid).update({notes:n}); inp.value='';
+    };
+    window.remFile =async(pid,i,j)=>{
+      const d=await col.doc(pid).get(), n=d.data().notes||[], f=n[i].files[j];
+      await storage.refFromURL(f.url).delete();
+      n[i].files.splice(j,1); col.doc(pid).update({notes:n});
+    };
 
-    /* Komment */
-    async function addComment(pid,idx){
-      const text=prompt('Komment:'); if(!text)return;
-      const d=await projectsCol.doc(pid).get(), notes=d.data().notes||[];
-      (notes[idx].comments||=[]).push({name:'Ádám',text});
-      projectsCol.doc(pid).update({notes});
-    }
-    async function deleteComment(pid,idx,i){
-      const d=await projectsCol.doc(pid).get(), notes=d.data().notes||[];
-      notes[idx].comments.splice(i,1); projectsCol.doc(pid).update({notes});
-    }
+    window.addComm =async(pid,i)=>{
+      const text=prompt('Komment:' ); if(!text)return;
+      const d=await col.doc(pid).get(), n=d.data().notes||[];
+      (n[i].comments||=[]).push({name:'Ádám',text});
+      col.doc(pid).update({notes:n});
+    };
+    window.delComm =async(pid,i,j)=>{
+      const d=await col.doc(pid).get(), n=d.data().notes||[];
+      n[i].comments.splice(j,1); col.doc(pid).update({notes:n});
+    };
 
-    /* Link megnyitás */
-    function openLink(id){
+    /* ---------- Segéd ---------- */
+    window.openLink=id=>{
       const u=document.getElementById(id).value.trim();
-      if(u) window.open(/^https?:\/\//.test(u)?u:'https://'+u,'_blank');
-      else alert('Adj meg egy érvényes URL-t!');
-    }
+      u?window.open(/^https?:\/\//.test(u)?u:'https://'+u,'_blank'):alert('Adj meg URL-t!');
+    };
   </script>
 </body>
 </html>
