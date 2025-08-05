@@ -2,72 +2,156 @@
 <html lang="hu">
 <head>
   <meta charset="UTF-8">
-  <title>Heti Híradó (Realtime)</title>
+  <title>Heti Híradó</title>
   <style>
     body {
       font-family: "Segoe UI", Roboto, Arial, sans-serif;
       background: #f5f5f5;
       margin: 0;
       padding: 20px;
+      display: flex;
+      justify-content: center;
     }
     .wrapper {
-      max-width: 750px;
-      margin: 0 auto;
+      max-width: 1000px;
+      width: 100%;
       background: #fff;
       border-radius: 10px;
       padding: 25px 30px 30px 30px;
       box-shadow: 0 4px 22px 0 #0002;
     }
     h1 { text-align: center; margin-top: 0; }
-    .note { background: #faf7f1; border-radius: 6px; padding: 14px 18px 12px 18px; margin: 16px 0; border: 1px solid #e0c997; position: relative;}
-    .note-title { font-weight: bold; font-size: 1.12em; }
-    .comments { margin-left: 25px; margin-top: 9px;}
-    .comment { background: #eef0fa; border-radius: 6px; padding: 7px 13px; margin: 8px 0; font-size: 0.99em;}
-    .small { font-size: 0.96em; color: #888; }
-    .del-btn {
-      background: transparent; border: none; color: #e33; font-weight: bold; font-size: 1.2em; cursor: pointer;
-      position: absolute; top: 5px; right: 7px;
+    .project {
+      background: #faf7f1; border-radius: 6px; padding: 14px 18px 12px 18px; margin: 16px 0; border: 1px solid #e0c997; position: relative;
     }
-    .del-btn:hover { color: #b00; }
-    .add-row { display: flex; gap: 7px; margin: 12px 0 24px 0; }
-    input, textarea, select {
-      font-family: inherit;
-      font-size: 1em;
+    .row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+      align-items: flex-start;
+    }
+    .controls-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 5px;
+      width: 100%;
+    }
+    .uploaded-files {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      min-width: 40px;
+      flex-shrink: 0;
+    }
+    .controls-row input[type="file"] {
+      margin-left: auto;
+    }
+    input[type="text"], textarea, select {
+      padding: 6px;
       border: 1px solid #ccc;
       border-radius: 4px;
-      padding: 7px 8px;
+      font-size: 14px;
     }
-    textarea { resize: vertical; min-height: 55px; width: 100%; }
-    .add-btn {
-      background: #F4B731;
-      color: #fff;
+    textarea {
+      width: 100%;
+      resize: vertical;
+      min-height: 60px;
+    }
+    .link-input {
+      flex-grow: 1;
+      min-width: 300px;
+    }
+    .three-input-row input[type="text"] {
+      font-size: 16px;
+      font-weight: bold;
+      flex: 1;
+      min-width: 200px;
+    }
+    .button {
+      background-color: #F4B731;
       border: none;
+      padding: 6px 12px;
       border-radius: 4px;
-      padding: 8px 14px;
+      color: white;
       cursor: pointer;
-      font-size: 1em;
+      height: fit-content;
     }
-    .add-btn:hover { background: #e0a520; }
-    .add-btn:active { background: #db9b0e; }
-    .comment-form { margin-top: 12px; }
+    .button:hover {
+      background-color: #e0a520;
+    }
+    .comment-thread {
+      margin-left: 40px;
+      margin-top: 15px;
+      margin-bottom: 5px;
+      position: relative;
+    }
+    .uploaded-files a {
+      margin: 0;
+    }
+    .uploaded-files button {
+      background: transparent;
+      border: none;
+      color: red;
+      cursor: pointer;
+      padding: 0 2px;
+      font-size: 16px;
+      line-height: 1;
+    }
+    .note {
+      margin-left: 20px;
+      margin-bottom: 15px;
+      clear: both;
+      position: relative;
+    }
+    .comment-thread select {
+      margin-bottom: 6px;
+      display: block;
+    }
+    .delete-btn {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      background: transparent;
+      border: none;
+      color: #B72E2E;
+      font-size: 19px;
+      cursor: pointer;
+      padding: 0 4px 2px 4px;
+      border-radius: 50%;
+      transition: background 0.2s;
+      z-index: 3;
+      line-height: 1;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .delete-btn:hover {
+      background: #ffe3e3;
+    }
+    .delete-btn span {
+      font-size: 21px;
+      font-weight: bold;
+      display: block;
+      line-height: 1;
+      margin-top: -2px;
+    }
   </style>
 </head>
 <body>
   <div class="wrapper">
-    <h1>Heti Híradó <span style="font-size: 0.5em; color: #aaa">(Realtime)</span></h1>
-
-    <div class="add-row">
-      <input id="new-title" type="text" placeholder="Vázlatpont címe/pl. Szervező, Város, Projekt" style="flex:1;">
-      <button class="add-btn" onclick="addNote()">+ Vázlatpont</button>
-    </div>
-    <textarea id="new-text" placeholder="Vázlatpont leírása" style="width:100%;margin-bottom:10px;"></textarea>
-
-    <div id="notes-list"></div>
+    <h1>Heti Híradó</h1>
+    <div id="container"></div>
+    <button class="button" onclick="addProject()">+ Projekt hozzáadása</button>
   </div>
 
   <!-- FIREBASE SDK SCRIPTS -->
   <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-storage.js"></script>
   <!-- FIREBASE INIT -->
   <script>
     // IDE MÁSOLD BE A SAJÁT firebaseConfig-odat!
@@ -82,93 +166,176 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
+    const storage = firebase.storage();
   </script>
 
   <!-- APP LOGIKA -->
   <script>
-    const notesRef = db.collection("notes");
+    const projectsRef = db.collection("projects");
 
-    // Új vázlatpont hozzáadása
-    async function addNote() {
-      const title = document.getElementById('new-title').value.trim();
-      const text = document.getElementById('new-text').value.trim();
-      if (!title && !text) return;
-      await notesRef.add({
-        title, text, comments: [], created: new Date().toISOString()
-      });
-      document.getElementById('new-title').value = '';
-      document.getElementById('new-text').value = '';
-    }
-
-    // Vázlatpont törlése
-    async function deleteNote(id) {
-      await notesRef.doc(id).delete();
-    }
-
-    // Új komment hozzáadása
-    async function addComment(noteId, nameInput, commentInput) {
-      const name = nameInput.value.trim() || "Névtelen";
-      const text = commentInput.value.trim();
-      if (!text) return;
-      const doc = await notesRef.doc(noteId).get();
-      const old = doc.exists && doc.data().comments ? doc.data().comments : [];
-      old.push({ name, text, created: new Date().toISOString() });
-      await notesRef.doc(noteId).update({ comments: old });
-      commentInput.value = "";
-    }
-
-    // Komment törlése
-    async function deleteComment(noteId, idx) {
-      const doc = await notesRef.doc(noteId).get();
-      const old = doc.exists && doc.data().comments ? doc.data().comments : [];
-      old.splice(idx, 1);
-      await notesRef.doc(noteId).update({ comments: old });
-    }
-
-    // Valós idejű megjelenítés
-    notesRef.orderBy("created").onSnapshot(snapshot => {
-      const container = document.getElementById('notes-list');
+    // Valós idejű projektek betöltése
+    projectsRef.orderBy("created").onSnapshot(snapshot => {
+      const container = document.getElementById('container');
       container.innerHTML = "";
-      snapshot.forEach(doc => {
-        const d = doc.data();
-        const id = doc.id;
-        // NOTE CARD
-        const noteDiv = document.createElement('div');
-        noteDiv.className = "note";
-        noteDiv.innerHTML = `
-          <button class="del-btn" onclick="deleteNote('${id}')">✕</button>
-          <div class="note-title">${d.title || "<span class='small'>(Cím nélkül)</span>"}</div>
-          <div style="margin:7px 0 2px 0">${d.text || ""}</div>
-        `;
-        // COMMENT THREAD
-        const commentsDiv = document.createElement('div');
-        commentsDiv.className = "comments";
-        if (d.comments && d.comments.length) {
-          d.comments.forEach((c, idx) => {
-            const comm = document.createElement('div');
-            comm.className = "comment";
-            comm.innerHTML = `<b>${c.name}:</b> ${c.text}
-              <button class="del-btn" title="Komment törlése" onclick="deleteComment('${id}',${idx})" style="position:static; float:right;">✕</button>`;
-            commentsDiv.appendChild(comm);
-          });
-        }
-        // ÚJ KOMMENT MEZŐ
-        const form = document.createElement('div');
-        form.className = "comment-form";
-        form.innerHTML = `
-          <select style="margin-bottom:5px;">
-            <option>Ádám</option>
-            <option>Dávid</option>
-          </select>
-          <textarea placeholder="Új komment..." style="margin-bottom:6px;"></textarea>
-          <button class="add-btn" style="margin-top:3px;" onclick="addComment('${id}', this.previousElementSibling.previousElementSibling, this.previousElementSibling)">Kommentálom</button>
-        `;
-        commentsDiv.appendChild(form);
-
-        noteDiv.appendChild(commentsDiv);
-        container.appendChild(noteDiv);
-      });
+      snapshot.forEach(doc => renderProject(doc, container));
     });
+
+    // Projekt render
+    function renderProject(doc, container) {
+      const d = doc.data();
+      const id = doc.id;
+      const projectDiv = document.createElement('div');
+      projectDiv.className = 'project';
+
+      // --- Fő mezők ---
+      projectDiv.innerHTML = `
+        <div class="row three-input-row">
+          <input type="text" value="${d.organizer || ""}" placeholder="Szervező neve" onblur="updateField('${id}','organizer',this.value)">
+          <input type="text" value="${d.city || ""}" placeholder="Város" onblur="updateField('${id}','city',this.value)">
+          <input type="text" class="link-input" id="${id}-link" value="${d.link || ""}" placeholder="Link (pl. https://...)" onblur="updateField('${id}','link',this.value)">
+          <button class="button" onclick="openLink('${id}-link')">Megnyitás Chrome-ban</button>
+        </div>
+        <div id="${id}-notes"></div>
+        <button class="button" onclick="addNote('${id}')">+ Vázlatpont</button>
+        <button class="delete-btn" title="Projekt törlése" onclick="deleteProject('${id}')"><span>&times;</span></button>
+      `;
+
+      // --- Vázlatpontok ---
+      const notesDiv = projectDiv.querySelector(`#${id}-notes`);
+      (d.notes || []).forEach((note, noteIdx) => {
+        const noteDiv = document.createElement('div');
+        noteDiv.className = 'note';
+        noteDiv.innerHTML = `
+          <button class="delete-btn" title="Vázlatpont törlése" onclick="deleteNote('${id}',${noteIdx})"><span>&times;</span></button>
+          <textarea placeholder="Vázlatpont" onblur="updateNote('${id}',${noteIdx},this.value)">${note.text || ""}</textarea>
+          <div class="controls-row">
+            <button class="button" onclick="addCommentThread('${id}',${noteIdx},this)">Kommentálom</button>
+            <div class="uploaded-files">${renderFiles(note.files, id, noteIdx)}</div>
+            <input type="file" multiple onchange="handleFileUpload(this, '${id}', ${noteIdx})">
+          </div>
+          <div class="comments-container">${renderComments(note.comments, id, noteIdx)}</div>
+        `;
+        notesDiv.appendChild(noteDiv);
+      });
+
+      container.appendChild(projectDiv);
+    }
+
+    // --- Renderelő segédfüggvények ---
+    function renderFiles(files, projectId, noteIdx) {
+      if (!files || files.length === 0) return "";
+      return files.map((file, i) =>
+        `<span style="display:inline-flex;align-items:center">
+          <a href="${file.url}" target="_blank" download="${file.name}">${file.name}</a>
+          <button onclick="removeFile('${projectId}',${noteIdx},${i})" title="Fájl törlése" style="color:red;font-size:14px;margin-left:2px;background:none;border:none;cursor:pointer;">✕</button>
+        </span>`
+      ).join('');
+    }
+    function renderComments(comments, projectId, noteIdx) {
+      if (!comments || comments.length === 0) return "";
+      return comments.map((c, ci) =>
+        `<div class="comment-thread" style="margin-left:0">
+          <button class="delete-btn" title="Komment törlése" onclick="deleteComment('${projectId}',${noteIdx},${ci})"><span>&times;</span></button>
+          <b>${c.name}:</b> ${c.text}
+        </div>`
+      ).join('');
+    }
+
+    // --- Projekt CRUD ---
+    function addProject() {
+      projectsRef.add({
+        organizer: "", city: "", link: "",
+        notes: [], created: new Date().toISOString()
+      });
+    }
+    function deleteProject(id) {
+      if (confirm("Biztosan törlöd ezt a projektet?")) {
+        projectsRef.doc(id).delete();
+      }
+    }
+    function updateField(id, field, value) {
+      projectsRef.doc(id).update({ [field]: value });
+    }
+
+    // --- Vázlatpont CRUD ---
+    async function addNote(projectId) {
+      const projectDoc = await projectsRef.doc(projectId).get();
+      const notes = projectDoc.exists && projectDoc.data().notes ? projectDoc.data().notes : [];
+      notes.push({ text: "", files: [], comments: [] });
+      projectsRef.doc(projectId).update({ notes });
+    }
+    async function deleteNote(projectId, noteIdx) {
+      const projectDoc = await projectsRef.doc(projectId).get();
+      const notes = projectDoc.data().notes || [];
+      if (!confirm("Biztosan törlöd ezt a vázlatpontot?")) return;
+      notes.splice(noteIdx, 1);
+      projectsRef.doc(projectId).update({ notes });
+    }
+    async function updateNote(projectId, noteIdx, value) {
+      const projectDoc = await projectsRef.doc(projectId).get();
+      const notes = projectDoc.data().notes || [];
+      notes[noteIdx].text = value;
+      projectsRef.doc(projectId).update({ notes });
+    }
+
+    // --- Fájlok feltöltése, törlése ---
+    async function handleFileUpload(input, projectId, noteIdx) {
+      const files = input.files;
+      if (!files.length) return;
+      const projectDoc = await projectsRef.doc(projectId).get();
+      const notes = projectDoc.data().notes || [];
+      const uploaded = [];
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        // Tárolás path: projects/<projectId>/<noteIdx>-<filename>
+        const storageRef = storage.ref().child(`projects/${projectId}/${noteIdx}-${file.name}`);
+        await storageRef.put(file);
+        const url = await storageRef.getDownloadURL();
+        uploaded.push({ name: file.name, url });
+      }
+      notes[noteIdx].files = (notes[noteIdx].files || []).concat(uploaded);
+      projectsRef.doc(projectId).update({ notes });
+      input.value = ""; // Reset file input
+    }
+    async function removeFile(projectId, noteIdx, fileIdx) {
+      const projectDoc = await projectsRef.doc(projectId).get();
+      const notes = projectDoc.data().notes || [];
+      const file = notes[noteIdx].files[fileIdx];
+      if (!file) return;
+      // Törlés Storage-ból
+      const storageRef = storage.refFromURL(file.url);
+      await storageRef.delete();
+      notes[noteIdx].files.splice(fileIdx, 1);
+      projectsRef.doc(projectId).update({ notes });
+    }
+
+    // --- Kommentek ---
+    async function addCommentThread(projectId, noteIdx, btn) {
+      const name = "Ádám"; // vagy később legördülőből
+      const text = prompt("Írd be a kommentet:");
+      if (!text) return;
+      const projectDoc = await projectsRef.doc(projectId).get();
+      const notes = projectDoc.data().notes || [];
+      notes[noteIdx].comments = (notes[noteIdx].comments || []).concat([{ name, text }]);
+      projectsRef.doc(projectId).update({ notes });
+    }
+    async function deleteComment(projectId, noteIdx, ci) {
+      const projectDoc = await projectsRef.doc(projectId).get();
+      const notes = projectDoc.data().notes || [];
+      notes[noteIdx].comments.splice(ci, 1);
+      projectsRef.doc(projectId).update({ notes });
+    }
+
+    // Link megnyitása
+    function openLink(id) {
+      const input = document.getElementById(id);
+      const url = input.value.trim();
+      if (url) {
+        window.open(url.startsWith('http') ? url : 'https://' + url, '_blank');
+      } else {
+        alert('Adj meg egy érvényes linket!');
+      }
+    }
   </script>
 </body>
 </html>
