@@ -2,11 +2,12 @@
 <html lang="hu">
 <head>
   <meta charset="UTF-8">
-  <title>Heti Híradó</title>
+  <title>Heti Híradó (Firebase Realtime)</title>
   <style>
     body {
       font-family: "Segoe UI", Roboto, Arial, sans-serif;
-      background: #f5f5f5;
+      background-color: #f5f5f5;
+      color: #333;
       margin: 0;
       padding: 20px;
       display: flex;
@@ -15,129 +16,52 @@
     .wrapper {
       max-width: 1000px;
       width: 100%;
-      background: #fff;
-      border-radius: 10px;
-      padding: 25px 30px 30px 30px;
-      box-shadow: 0 4px 22px 0 #0002;
     }
-    h1 { text-align: center; margin-top: 0; }
+    h1 { text-align: center; color: #222; margin-bottom: 30px; }
     .project {
-      background: #faf7f1; border-radius: 6px; padding: 14px 18px 12px 18px; margin: 16px 0; border: 1px solid #e0c997; position: relative;
+      background: #fff; border: 1px solid #ccc; border-radius: 6px;
+      padding: 20px; margin-bottom: 30px; position: relative;
     }
     .row {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 10px;
-      flex-wrap: wrap;
-      align-items: flex-start;
+      display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; align-items: flex-start;
     }
     .controls-row {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      margin-top: 5px;
-      width: 100%;
+      display: flex; gap: 10px; align-items: center; margin-top: 5px; width: 100%;
     }
     .uploaded-files {
-      display: inline-flex;
-      gap: 8px;
-      align-items: center;
-      min-width: 40px;
-      flex-shrink: 0;
+      display: inline-flex; gap: 8px; align-items: center; min-width: 40px; flex-shrink: 0;
     }
-    .controls-row input[type="file"] {
-      margin-left: auto;
-    }
+    .controls-row input[type="file"] { margin-left: auto; }
     input[type="text"], textarea, select {
-      padding: 6px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      font-size: 14px;
+      padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;
     }
-    textarea {
-      width: 100%;
-      resize: vertical;
-      min-height: 60px;
-    }
-    .link-input {
-      flex-grow: 1;
-      min-width: 300px;
-    }
+    textarea { width: 100%; resize: vertical; min-height: 60px; }
+    .link-input { flex-grow: 1; min-width: 300px; }
     .three-input-row input[type="text"] {
-      font-size: 16px;
-      font-weight: bold;
-      flex: 1;
-      min-width: 200px;
+      font-size: 16px; font-weight: bold; flex: 1; min-width: 200px;
     }
     .button {
-      background-color: #F4B731;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 4px;
-      color: white;
-      cursor: pointer;
-      height: fit-content;
+      background-color: #F4B731; border: none; padding: 6px 12px; border-radius: 4px;
+      color: white; cursor: pointer; height: fit-content;
     }
-    .button:hover {
-      background-color: #e0a520;
-    }
-    .comment-thread {
-      margin-left: 40px;
-      margin-top: 15px;
-      margin-bottom: 5px;
-      position: relative;
-    }
-    .uploaded-files a {
-      margin: 0;
-    }
+    .button:hover { background-color: #e0a520; }
+    .comment-thread { margin-left: 40px; margin-top: 15px; margin-bottom: 5px; position: relative; }
+    .uploaded-files a { margin: 0; }
     .uploaded-files button {
-      background: transparent;
-      border: none;
-      color: red;
-      cursor: pointer;
-      padding: 0 2px;
-      font-size: 16px;
-      line-height: 1;
+      background: transparent; border: none; color: red; cursor: pointer;
+      padding: 0 2px; font-size: 16px; line-height: 1;
     }
-    .note {
-      margin-left: 20px;
-      margin-bottom: 15px;
-      clear: both;
-      position: relative;
-    }
-    .comment-thread select {
-      margin-bottom: 6px;
-      display: block;
-    }
+    .note { margin-left: 20px; margin-bottom: 15px; clear: both; position: relative; }
+    .comment-thread select { margin-bottom: 6px; display: block; }
     .delete-btn {
-      position: absolute;
-      top: 6px;
-      right: 6px;
-      background: transparent;
-      border: none;
-      color: #B72E2E;
-      font-size: 19px;
-      cursor: pointer;
-      padding: 0 4px 2px 4px;
-      border-radius: 50%;
-      transition: background 0.2s;
-      z-index: 3;
-      line-height: 1;
-      width: 28px;
-      height: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      position: absolute; top: 6px; right: 6px; background: transparent; border: none;
+      color: #B72E2E; font-size: 19px; cursor: pointer; padding: 0 4px 2px 4px;
+      border-radius: 50%; transition: background 0.2s; z-index: 3; line-height: 1;
+      width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
     }
-    .delete-btn:hover {
-      background: #ffe3e3;
-    }
+    .delete-btn:hover { background: #ffe3e3; }
     .delete-btn span {
-      font-size: 21px;
-      font-weight: bold;
-      display: block;
-      line-height: 1;
-      margin-top: -2px;
+      font-size: 21px; font-weight: bold; display: block; line-height: 1; margin-top: -2px;
     }
   </style>
 </head>
@@ -152,9 +76,8 @@
   <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js"></script>
   <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-storage.js"></script>
-  <!-- FIREBASE INIT -->
   <script>
-    // IDE MÁSOLD BE A SAJÁT firebaseConfig-odat!
+    // SAJÁT adatokkal!
     const firebaseConfig = {
       apiKey: "AIzaSyDn12dx4VO5COB2_eu7OCOusmT4z-NwdDA",
       authDomain: "heti-hirado.firebaseapp.com",
@@ -168,19 +91,16 @@
     const db = firebase.firestore();
     const storage = firebase.storage();
   </script>
-
-  <!-- APP LOGIKA -->
   <script>
+    // -------- FIREBASE ALAP: REALTIME RENDER --------
     const projectsRef = db.collection("projects");
 
-    // Valós idejű projektek betöltése
     projectsRef.orderBy("created").onSnapshot(snapshot => {
       const container = document.getElementById('container');
       container.innerHTML = "";
       snapshot.forEach(doc => renderProject(doc, container));
     });
 
-    // Projekt render
     function renderProject(doc, container) {
       const d = doc.data();
       const id = doc.id;
@@ -221,7 +141,7 @@
       container.appendChild(projectDiv);
     }
 
-    // --- Renderelő segédfüggvények ---
+    // Renderelő segédfüggvények
     function renderFiles(files, projectId, noteIdx) {
       if (!files || files.length === 0) return "";
       return files.map((file, i) =>
@@ -241,7 +161,7 @@
       ).join('');
     }
 
-    // --- Projekt CRUD ---
+    // Projekt CRUD
     function addProject() {
       projectsRef.add({
         organizer: "", city: "", link: "",
@@ -257,7 +177,7 @@
       projectsRef.doc(id).update({ [field]: value });
     }
 
-    // --- Vázlatpont CRUD ---
+    // Vázlatpont CRUD
     async function addNote(projectId) {
       const projectDoc = await projectsRef.doc(projectId).get();
       const notes = projectDoc.exists && projectDoc.data().notes ? projectDoc.data().notes : [];
@@ -278,7 +198,7 @@
       projectsRef.doc(projectId).update({ notes });
     }
 
-    // --- Fájlok feltöltése, törlése ---
+    // Fájlok feltöltése, törlése
     async function handleFileUpload(input, projectId, noteIdx) {
       const files = input.files;
       if (!files.length) return;
@@ -287,7 +207,6 @@
       const uploaded = [];
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        // Tárolás path: projects/<projectId>/<noteIdx>-<filename>
         const storageRef = storage.ref().child(`projects/${projectId}/${noteIdx}-${file.name}`);
         await storageRef.put(file);
         const url = await storageRef.getDownloadURL();
@@ -302,16 +221,15 @@
       const notes = projectDoc.data().notes || [];
       const file = notes[noteIdx].files[fileIdx];
       if (!file) return;
-      // Törlés Storage-ból
       const storageRef = storage.refFromURL(file.url);
       await storageRef.delete();
       notes[noteIdx].files.splice(fileIdx, 1);
       projectsRef.doc(projectId).update({ notes });
     }
 
-    // --- Kommentek ---
+    // Kommentek
     async function addCommentThread(projectId, noteIdx, btn) {
-      const name = "Ádám"; // vagy később legördülőből
+      const name = "Ádám";
       const text = prompt("Írd be a kommentet:");
       if (!text) return;
       const projectDoc = await projectsRef.doc(projectId).get();
