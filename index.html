@@ -15,35 +15,39 @@
     }
     .wrapper { max-width: 1000px; width: 100%; }
     h1 { text-align: center; color: #222; margin-bottom: 30px; }
-    .project {
+    .project-outer {
       position: relative;
+      margin-bottom: 40px;
+    }
+    .project {
       background: #fff;
       border: 1px solid #ccc;
       border-radius: 6px;
       padding: 20px;
-      margin-bottom: 30px;
     }
-    .project-delete-btn {
+    .project-tab-delete {
       position: absolute;
-      top: 10px;
-      right: 10px;
+      top: -12px;
+      right: -12px;
       background: #fff;
-      border: 1px solid #ccc;
+      border: 2px solid #F4B731;
       color: #B72E2E;
-      font-size: 18px;
-      border-radius: 50%;
-      width: 24px;
-      height: 24px;
+      font-size: 17px;
+      font-weight: bold;
+      border-radius: 9px 24px 9px 24px;
+      width: 28px;
+      height: 28px;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 5;
-      transition: background 0.2s;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      z-index: 10;
+      transition: background 0.2s, color 0.2s;
+      display: flex; align-items: center; justify-content: center;
       padding: 0;
     }
-    .project-delete-btn:hover {
+    .project-tab-delete:hover {
       background: #ffe3e3;
+      color: #a00;
+      border-color: #e0a520;
     }
     .row { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; align-items: flex-start; }
     .controls-row { display: flex; gap: 10px; align-items: center; margin-top: 5px; width: 100%; }
@@ -107,25 +111,27 @@
     }
 
     function renderProject(id, data) {
-      const projectDiv = document.createElement('div');
-      projectDiv.className = 'project';
-      projectDiv.innerHTML = `
-        <button class="project-delete-btn" title="Projekt törlése" onclick="deleteProject('${id}')">&times;</button>
-        <div class="row three-input-row">
-          <input type="text" placeholder="Szervező neve" value="${escapeHtml(data.organizer)}" 
-            onchange="updateProject('${id}', 'organizer', this.value)">
-          <input type="text" placeholder="Város" value="${escapeHtml(data.city)}" 
-            onchange="updateProject('${id}', 'city', this.value)">
-          <input type="text" class="link-input" id="${id}-link" placeholder="Link (pl. https://...)" value="${escapeHtml(data.link)}"
-            onchange="updateProject('${id}', 'link', this.value)">
-          <button class="button" onclick="openLink('${id}-link')">Megnyitás Chrome-ban</button>
+      const outerDiv = document.createElement('div');
+      outerDiv.className = 'project-outer';
+      outerDiv.innerHTML = `
+        <button class="project-tab-delete" title="Projekt törlése" onclick="deleteProject('${id}')">&times;</button>
+        <div class="project">
+          <div class="row three-input-row">
+            <input type="text" placeholder="Szervező neve" value="${escapeHtml(data.organizer)}" 
+              onchange="updateProject('${id}', 'organizer', this.value)">
+            <input type="text" placeholder="Város" value="${escapeHtml(data.city)}" 
+              onchange="updateProject('${id}', 'city', this.value)">
+            <input type="text" class="link-input" id="${id}-link" placeholder="Link (pl. https://...)" value="${escapeHtml(data.link)}"
+              onchange="updateProject('${id}', 'link', this.value)">
+            <button class="button" onclick="openLink('${id}-link')">Megnyitás Chrome-ban</button>
+          </div>
+          <div id="${id}-notes"></div>
+          <button class="button" onclick="addNote('${id}')">+ Vázlatpont</button>
         </div>
-        <div id="${id}-notes"></div>
-        <button class="button" onclick="addNote('${id}')">+ Vázlatpont</button>
       `;
-      document.getElementById('container').appendChild(projectDiv);
-      // Render notes
-      const notesDiv = projectDiv.querySelector(`#${id}-notes`);
+      document.getElementById('container').appendChild(outerDiv);
+      // Jegyzetek (notes) renderelése:
+      const notesDiv = outerDiv.querySelector(`#${id}-notes`);
       if (data.notes && data.notes.length > 0) {
         data.notes.forEach((note, idx) => renderNote(notesDiv, id, note, idx));
       }
@@ -162,7 +168,7 @@
         <div class="comments-container"></div>
       `;
       notesDiv.appendChild(noteDiv);
-      // Render comments
+      // Kommentek renderelése:
       const commentsDiv = noteDiv.querySelector('.comments-container');
       if (note.comments && note.comments.length > 0) {
         note.comments.forEach((comment, idx) => renderComment(commentsDiv, projectId, noteIdx, comment, idx));
