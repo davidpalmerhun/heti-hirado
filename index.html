@@ -117,11 +117,11 @@
         <button class="project-tab-delete" title="Projekt törlése" onclick="deleteProject('${id}')">&times;</button>
         <div class="project">
           <div class="row three-input-row">
-            <input type="text" placeholder="Szervező neve" value="${escapeHtml(data.organizer)}" 
+            <input type="text" placeholder="PM Neve" value="${escapeHtml(data.organizer)}" 
               onchange="updateProject('${id}', 'organizer', this.value)">
             <input type="text" placeholder="Város" value="${escapeHtml(data.city)}" 
               onchange="updateProject('${id}', 'city', this.value)">
-            <input type="text" class="link-input" id="${id}-link" placeholder="Link (pl. https://...)" value="${escapeHtml(data.link)}"
+            <input type="text" class="link-input" id="${id}-link" placeholder="SESiL Link" value="${escapeHtml(data.link)}"
               onchange="updateProject('${id}', 'link', this.value)">
             <button class="button" onclick="openLink('${id}-link')">Megnyitás Chrome-ban</button>
           </div>
