@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <title>Heti Híradó</title>
   <style>
-    /* ... teljes CSS a tiedből ... */
     body {
       font-family: "Segoe UI", Roboto, Arial, sans-serif;
       background-color: #f5f5f5;
@@ -16,7 +15,36 @@
     }
     .wrapper { max-width: 1000px; width: 100%; }
     h1 { text-align: center; color: #222; margin-bottom: 30px; }
-    .project { background: #fff; border: 1px solid #ccc; border-radius: 6px; padding: 20px; margin-bottom: 30px; }
+    .project {
+      position: relative;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 20px;
+      margin-bottom: 30px;
+    }
+    .project-delete-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #fff;
+      border: 1px solid #ccc;
+      color: #B72E2E;
+      font-size: 18px;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 5;
+      transition: background 0.2s;
+      padding: 0;
+    }
+    .project-delete-btn:hover {
+      background: #ffe3e3;
+    }
     .row { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; align-items: flex-start; }
     .controls-row { display: flex; gap: 10px; align-items: center; margin-top: 5px; width: 100%; }
     .uploaded-files { display: inline-flex; gap: 8px; align-items: center; min-width: 40px; flex-shrink: 0; }
@@ -52,7 +80,7 @@
       apiKey: "AIzaSyDn12dx4VO5COB2_eu7OCOusmT4z-NwdDA",
       authDomain: "heti-hirado.firebaseapp.com",
       projectId: "heti-hirado",
-      storageBucket: "heti-hirado.firebasestorage.app",
+      storageBucket: "heti-hirado.appspot.com",
       messagingSenderId: "672469992573",
       appId: "1:672469992573:web:3c062fa37a4694c1c89d14",
       measurementId: "G-HRR8CCEJMT"
@@ -60,7 +88,6 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // Real-time listener a projektekhez
     db.collection("projects").orderBy("created", "asc").onSnapshot((querySnapshot) => {
       const container = document.getElementById('container');
       container.innerHTML = '';
@@ -83,6 +110,7 @@
       const projectDiv = document.createElement('div');
       projectDiv.className = 'project';
       projectDiv.innerHTML = `
+        <button class="project-delete-btn" title="Projekt törlése" onclick="deleteProject('${id}')">&times;</button>
         <div class="row three-input-row">
           <input type="text" placeholder="Szervező neve" value="${escapeHtml(data.organizer)}" 
             onchange="updateProject('${id}', 'organizer', this.value)">
@@ -91,7 +119,6 @@
           <input type="text" class="link-input" id="${id}-link" placeholder="Link (pl. https://...)" value="${escapeHtml(data.link)}"
             onchange="updateProject('${id}', 'link', this.value)">
           <button class="button" onclick="openLink('${id}-link')">Megnyitás Chrome-ban</button>
-          <button class="delete-btn" title="Projekt törlése" onclick="deleteProject('${id}')"><span>&times;</span></button>
         </div>
         <div id="${id}-notes"></div>
         <button class="button" onclick="addNote('${id}')">+ Vázlatpont</button>
@@ -104,14 +131,14 @@
       }
     }
 
-    function updateProject(id, field, value) {
-      db.collection("projects").doc(id).update({ [field]: value });
-    }
-
     function deleteProject(id) {
       if (confirm("Biztosan törlöd ezt a projektet?")) {
         db.collection("projects").doc(id).delete();
       }
+    }
+
+    function updateProject(id, field, value) {
+      db.collection("projects").doc(id).update({ [field]: value });
     }
 
     function addNote(projectId) {
@@ -221,7 +248,6 @@
       }
     }
 
-    // Biztonság kedvéért HTML escaping
     function escapeHtml(unsafe) {
       return unsafe
         ? unsafe.replace(/[&<"']/g, function (m) {
