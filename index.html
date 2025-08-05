@@ -3,148 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <title>Heti Híradó</title>
+
+  <!--  ===== Firebase “compat” CDN-ek  =====  -->
+  <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-storage.js"></script>
+
   <style>
-    body {
-      font-family: "Segoe UI", Roboto, Arial, sans-serif;
-      background-color: #f5f5f5;
-      color: #333;
-      margin: 0;
-      padding: 20px;
-      display: flex;
-      justify-content: center;
-    }
-    .wrapper {
-      max-width: 1000px;
-      width: 100%;
-    }
-    h1 {
-      text-align: center;
-      color: #222;
-      margin-bottom: 30px;
-    }
-    .project {
-      background: #fff;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      padding: 20px;
-      margin-bottom: 30px;
-      position: relative;
-    }
-    .row {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 10px;
-      flex-wrap: wrap;
-      align-items: flex-start;
-    }
-    .controls-row {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      margin-top: 5px;
-      width: 100%;
-    }
-    .uploaded-files {
-      display: inline-flex;
-      gap: 8px;
-      align-items: center;
-      min-width: 40px;
-      flex-shrink: 0;
-    }
-    .controls-row input[type="file"] {
-      margin-left: auto;
-    }
-    input[type="text"], textarea, select {
-      padding: 6px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      font-size: 14px;
-    }
-    textarea {
-      width: 100%;
-      resize: vertical;
-      min-height: 60px;
-    }
-    .link-input {
-      flex-grow: 1;
-      min-width: 300px;
-    }
-    .three-input-row input[type="text"] {
-      font-size: 16px;
-      font-weight: bold;
-      flex: 1;
-      min-width: 200px;
-    }
-    .button {
-      background-color: #F4B731;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 4px;
-      color: white;
-      cursor: pointer;
-      height: fit-content;
-    }
-    .button:hover {
-      background-color: #e0a520;
-    }
-    .comment-thread {
-      margin-left: 40px;
-      margin-top: 15px;
-      margin-bottom: 5px;
-      position: relative;
-    }
-    .uploaded-files a {
-      margin: 0;
-    }
-    .uploaded-files button {
-      background: transparent;
-      border: none;
-      color: red;
-      cursor: pointer;
-      padding: 0 2px;
-      font-size: 16px;
-      line-height: 1;
-    }
-    .note {
-      margin-left: 20px;
-      margin-bottom: 15px;
-      clear: both;
-      position: relative;
-    }
-    .comment-thread select {
-      margin-bottom: 6px;
-      display: block;
-    }
-    .delete-btn {
-      position: absolute;
-      top: 6px;
-      right: 6px;
-      background: transparent;
-      border: none;
-      color: #B72E2E;
-      font-size: 19px;
-      cursor: pointer;
-      padding: 0 4px 2px 4px;
-      border-radius: 50%;
-      transition: background 0.2s;
-      z-index: 3;
-      line-height: 1;
-      width: 28px;
-      height: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .delete-btn:hover {
-      background: #ffe3e3;
-    }
-    .delete-btn span {
-      font-size: 21px;
-      font-weight: bold;
-      display: block;
-      line-height: 1;
-      margin-top: -2px;
-    }
+    body{font-family:"Segoe UI",Roboto,Arial,sans-serif;background:#f5f5f5;margin:0;padding:24px;display:flex;justify-content:center}
+    .wrapper{max-width:1000px;width:100%}
+    h1{text-align:center;margin:0 0 24px}
+    .project{background:#fff;border:1px solid #ccc;border-radius:6px;padding:20px;margin-bottom:24px;position:relative}
+    .row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+    .controls-row{display:flex;gap:10px;align-items:center;margin-top:6px;width:100%}
+    input[type=text],textarea,select{padding:6px;border:1px solid #ccc;border-radius:4px;font-size:14px}
+    textarea{width:100%;resize:vertical;min-height:60px}
+    .link-input{flex:1 1 300px}
+    .three-input-row input[type=text]{font-weight:bold;font-size:16px;flex:1 1 200px}
+    .button{background:#F4B731;color:#fff;border:none;border-radius:4px;padding:6px 12px;cursor:pointer}
+    .button:hover{background:#e0a520}
+    .note{margin-left:20px;margin-bottom:14px;position:relative}
+    .comment-thread{margin-left:40px;margin-top:14px;position:relative}
+    .uploaded-files{display:inline-flex;gap:8px;align-items:center}
+    .uploaded-files button{background:none;border:none;color:red;cursor:pointer;font-size:16px;padding:0 2px}
+    .delete-btn{position:absolute;top:6px;right:6px;background:none;border:none;color:#B72E2E;font-size:19px;cursor:pointer;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center}
+    .delete-btn:hover{background:#ffe3e3}
   </style>
 </head>
 <body>
@@ -154,187 +37,143 @@
     <button class="button" onclick="addProject()">+ Projekt hozzáadása</button>
   </div>
 
-  <!-- FIREBASE SDK SCRIPTS: csak így! -->
-  <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-storage.js"></script>
   <script>
-    // SAJÁT FIREBASE KONFIG
+    /* ---------- Firebase init ---------- */
     const firebaseConfig = {
-      apiKey: "AIzaSyDn12dx4VO5COB2_eu7OCOusmT4z-NwdDA",
-      authDomain: "heti-hirado.firebaseapp.com",
-      projectId: "heti-hirado",
-      storageBucket: "heti-hirado.appspot.com",   // <- javítottam .appspot.com-ra!
+      apiKey:            "AIzaSyDn12dx4VO5COB2_eu7OCOusmT4z-NwdDA",
+      authDomain:        "heti-hirado.firebaseapp.com",
+      projectId:         "heti-hirado",
+      storageBucket:     "heti-hirado.appspot.com",   //  fontos: .appspot.com
       messagingSenderId: "672469992573",
-      appId: "1:672469992573:web:3c062fa37a4694c1c89d14",
-      measurementId: "G-HRR8CCEJMT"
+      appId:             "1:672469992573:web:3c062fa37a4694c1c89d14",
+      measurementId:     "G-HRR8CCEJMT"
     };
     firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+    const db      = firebase.firestore();
     const storage = firebase.storage();
-  </script>
-  <script>
-    // --- REALTIME FIRESTORE ---
-    const projectsRef = db.collection("projects");
 
-    projectsRef.orderBy("created").onSnapshot(snapshot => {
-      const container = document.getElementById('container');
-      container.innerHTML = "";
-      snapshot.forEach(doc => renderProject(doc, container));
+    /* ---------- Realtime megjelenítés ---------- */
+    const projectsCol = db.collection("projects");
+
+    projectsCol.orderBy("created").onSnapshot(snap=>{
+      const c = document.getElementById('container');
+      c.innerHTML='';
+      snap.forEach(d=>c.appendChild(renderProject(d)));
     });
 
-    function renderProject(doc, container) {
-      const d = doc.data();
-      const id = doc.id;
-      const projectDiv = document.createElement('div');
-      projectDiv.className = 'project';
+    /* ---------- UI-rajzoló függvények ---------- */
+    function renderProject(doc){
+      const p = doc.data(), id = doc.id;
+      const el = document.createElement('div'); el.className='project';
 
-      // Fő mezők
-      projectDiv.innerHTML = `
+      el.innerHTML = `
         <div class="row three-input-row">
-          <input type="text" value="${d.organizer || ""}" placeholder="Szervező neve" onblur="updateField('${id}','organizer',this.value)">
-          <input type="text" value="${d.city || ""}" placeholder="Város" onblur="updateField('${id}','city',this.value)">
-          <input type="text" class="link-input" id="${id}-link" value="${d.link || ""}" placeholder="Link (pl. https://...)" onblur="updateField('${id}','link',this.value)">
-          <button class="button" onclick="openLink('${id}-link')">Megnyitás Chrome-ban</button>
+          <input type="text" value="${p.organizer||''}" placeholder="Szervező neve"
+                 onblur="updateField('${id}','organizer',this.value)">
+          <input type="text" value="${p.city||''}" placeholder="Város"
+                 onblur="updateField('${id}','city',this.value)">
+          <input type="text" id="link-${id}" class="link-input" value="${p.link||''}" placeholder="Link (pl. https://...)"
+                 onblur="updateField('${id}','link',this.value)">
+          <button class="button" onclick="openLink('link-${id}')">Megnyitás</button>
         </div>
-        <div id="${id}-notes"></div>
+        <div id="notes-${id}"></div>
         <button class="button" onclick="addNote('${id}')">+ Vázlatpont</button>
-        <button class="delete-btn" title="Projekt törlése" onclick="deleteProject('${id}')"><span>&times;</span></button>
+        <button class="delete-btn" onclick="deleteProject('${id}')" title="Projekt törlése">×</button>
       `;
 
-      // Vázlatpontok
-      const notesDiv = projectDiv.querySelector(`#${id}-notes`);
-      (d.notes || []).forEach((note, noteIdx) => {
-        const noteDiv = document.createElement('div');
-        noteDiv.className = 'note';
-        noteDiv.innerHTML = `
-          <button class="delete-btn" title="Vázlatpont törlése" onclick="deleteNote('${id}',${noteIdx})"><span>&times;</span></button>
-          <textarea placeholder="Vázlatpont" onblur="updateNote('${id}',${noteIdx},this.value)">${note.text || ""}</textarea>
-          <div class="controls-row">
-            <button class="button" onclick="addCommentThread('${id}',${noteIdx},this)">Kommentálom</button>
-            <div class="uploaded-files">${renderFiles(note.files, id, noteIdx)}</div>
-            <input type="file" multiple onchange="handleFileUpload(this, '${id}', ${noteIdx})">
-          </div>
-          <div class="comments-container">${renderComments(note.comments, id, noteIdx)}</div>
-        `;
-        notesDiv.appendChild(noteDiv);
-      });
+      /* vázlatpontok */
+      const notesWrap = el.querySelector(`#notes-${id}`);
+      (p.notes||[]).forEach((n,i)=>notesWrap.appendChild(renderNote(id,i,n)));
 
-      container.appendChild(projectDiv);
+      return el;
     }
 
-    // Fájlok kirenderelése
-    function renderFiles(files, projectId, noteIdx) {
-      if (!files || files.length === 0) return "";
-      return files.map((file, i) =>
-        `<span style="display:inline-flex;align-items:center">
-          <a href="${file.url}" target="_blank" download="${file.name}">${file.name}</a>
-          <button onclick="removeFile('${projectId}',${noteIdx},${i})" title="Fájl törlése" style="color:red;font-size:14px;margin-left:2px;background:none;border:none;cursor:pointer;">✕</button>
-        </span>`
-      ).join('');
-    }
-    function renderComments(comments, projectId, noteIdx) {
-      if (!comments || comments.length === 0) return "";
-      return comments.map((c, ci) =>
-        `<div class="comment-thread" style="margin-left:0">
-          <button class="delete-btn" title="Komment törlése" onclick="deleteComment('${projectId}',${noteIdx},${ci})"><span>&times;</span></button>
-          <b>${c.name}:</b> ${c.text}
-        </div>`
-      ).join('');
+    function renderNote(pid, idx, n){
+      const w = document.createElement('div'); w.className='note';
+      w.innerHTML = `
+        <button class="delete-btn" onclick="deleteNote('${pid}',${idx})" title="Vázlat törlése">×</button>
+        <textarea onblur="updateNote('${pid}',${idx},this.value)">${n.text||''}</textarea>
+        <div class="controls-row">
+          <button class="button" onclick="addComment('${pid}',${idx})">Kommentálom</button>
+          <div class="uploaded-files">${renderFiles(pid,idx,n.files)}</div>
+          <input type="file" multiple onchange="uploadFiles(this,'${pid}',${idx})">
+        </div>
+        <div>${renderComments(pid,idx,n.comments)}</div>
+      `;
+      return w;
     }
 
-    // --- Projekt CRUD ---
-    window.addProject = function() {
-      projectsRef.add({
-        organizer: "", city: "", link: "",
-        notes: [], created: new Date().toISOString()
-      });
+    const renderFiles=(pid,idx,arr)=> (arr||[]).map((f,i)=>`
+        <span>
+          <a href="${f.url}" target="_blank">${f.name}</a>
+          <button onclick="removeFile('${pid}',${idx},${i})">✕</button>
+        </span>`).join('');
+
+    const renderComments=(pid,idx,arr)=> (arr||[]).map((c,i)=>`
+        <div class="comment-thread">
+          <button class="delete-btn" onclick="deleteComment('${pid}',${idx},${i})">×</button>
+          <b>${c.name}</b>: ${c.text}
+        </div>`).join('');
+
+    /* ---------- CRUD műveletek ---------- */
+    /* Projekt */
+    function addProject(){
+      projectsCol.add({organizer:'',city:'',link:'',notes:[],created:firebase.firestore.FieldValue.serverTimestamp()});
     }
-    window.deleteProject = function(id) {
-      if (confirm("Biztosan törlöd ezt a projektet?")) {
-        projectsRef.doc(id).delete();
+    function deleteProject(id){ confirm('Törlöd?')&&projectsCol.doc(id).delete(); }
+    function updateField(id,f,v){ projectsCol.doc(id).update({[f]:v}); }
+
+    /* Vázlatpont */
+    async function addNote(pid){
+      const d = await projectsCol.doc(pid).get(), notes=d.data().notes||[];
+      notes.push({text:'',files:[],comments:[]});
+      projectsCol.doc(pid).update({notes});
+    }
+    async function updateNote(pid,idx,val){
+      const d=await projectsCol.doc(pid).get(), notes=d.data().notes||[];
+      notes[idx].text=val; projectsCol.doc(pid).update({notes});
+    }
+    async function deleteNote(pid,idx){
+      if(!confirm('Törlöd a vázlatot?'))return;
+      const d=await projectsCol.doc(pid).get(), notes=d.data().notes||[];
+      notes.splice(idx,1); projectsCol.doc(pid).update({notes});
+    }
+
+    /* Fájlok */
+    async function uploadFiles(inp,pid,idx){
+      const d=await projectsCol.doc(pid).get(), notes=d.data().notes||[];
+      const list=notes[idx].files||[];
+      for(const file of inp.files){
+        const ref=storage.ref(`projects/${pid}/${idx}-${file.name}`);
+        await ref.put(file); const url=await ref.getDownloadURL();
+        list.push({name:file.name,url});
       }
+      notes[idx].files=list; projectsCol.doc(pid).update({notes}); inp.value='';
     }
-    window.updateField = function(id, field, value) {
-      projectsRef.doc(id).update({ [field]: value });
-    }
-
-    // --- Vázlatpont CRUD ---
-    window.addNote = async function(projectId) {
-      const projectDoc = await projectsRef.doc(projectId).get();
-      const notes = projectDoc.exists && projectDoc.data().notes ? projectDoc.data().notes : [];
-      notes.push({ text: "", files: [], comments: [] });
-      projectsRef.doc(projectId).update({ notes });
-    }
-    window.deleteNote = async function(projectId, noteIdx) {
-      const projectDoc = await projectsRef.doc(projectId).get();
-      const notes = projectDoc.data().notes || [];
-      if (!confirm("Biztosan törlöd ezt a vázlatpontot?")) return;
-      notes.splice(noteIdx, 1);
-      projectsRef.doc(projectId).update({ notes });
-    }
-    window.updateNote = async function(projectId, noteIdx, value) {
-      const projectDoc = await projectsRef.doc(projectId).get();
-      const notes = projectDoc.data().notes || [];
-      notes[noteIdx].text = value;
-      projectsRef.doc(projectId).update({ notes });
+    async function removeFile(pid,idx,i){
+      const d=await projectsCol.doc(pid).get(), notes=d.data().notes||[];
+      const file=notes[idx].files[i]; if(!file)return;
+      await storage.refFromURL(file.url).delete();
+      notes[idx].files.splice(i,1); projectsCol.doc(pid).update({notes});
     }
 
-    // --- Fájlok feltöltése, törlése ---
-    window.handleFileUpload = async function(input, projectId, noteIdx) {
-      const files = input.files;
-      if (!files.length) return;
-      const projectDoc = await projectsRef.doc(projectId).get();
-      const notes = projectDoc.data().notes || [];
-      const uploaded = [];
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const storageRef = storage.ref().child(`projects/${projectId}/${noteIdx}-${file.name}`);
-        await storageRef.put(file);
-        const url = await storageRef.getDownloadURL();
-        uploaded.push({ name: file.name, url });
-      }
-      notes[noteIdx].files = (notes[noteIdx].files || []).concat(uploaded);
-      projectsRef.doc(projectId).update({ notes });
-      input.value = ""; // Reset file input
+    /* Komment */
+    async function addComment(pid,idx){
+      const text=prompt('Komment:'); if(!text)return;
+      const d=await projectsCol.doc(pid).get(), notes=d.data().notes||[];
+      (notes[idx].comments||=[]).push({name:'Ádám',text});
+      projectsCol.doc(pid).update({notes});
     }
-    window.removeFile = async function(projectId, noteIdx, fileIdx) {
-      const projectDoc = await projectsRef.doc(projectId).get();
-      const notes = projectDoc.data().notes || [];
-      const file = notes[noteIdx].files[fileIdx];
-      if (!file) return;
-      const storageRef = storage.refFromURL(file.url);
-      await storageRef.delete();
-      notes[noteIdx].files.splice(fileIdx, 1);
-      projectsRef.doc(projectId).update({ notes });
+    async function deleteComment(pid,idx,i){
+      const d=await projectsCol.doc(pid).get(), notes=d.data().notes||[];
+      notes[idx].comments.splice(i,1); projectsCol.doc(pid).update({notes});
     }
 
-    // --- Kommentek ---
-    window.addCommentThread = async function(projectId, noteIdx, btn) {
-      const name = "Ádám";
-      const text = prompt("Írd be a kommentet:");
-      if (!text) return;
-      const projectDoc = await projectsRef.doc(projectId).get();
-      const notes = projectDoc.data().notes || [];
-      notes[noteIdx].comments = (notes[noteIdx].comments || []).concat([{ name, text }]);
-      projectsRef.doc(projectId).update({ notes });
-    }
-    window.deleteComment = async function(projectId, noteIdx, ci) {
-      const projectDoc = await projectsRef.doc(projectId).get();
-      const notes = projectDoc.data().notes || [];
-      notes[noteIdx].comments.splice(ci, 1);
-      projectsRef.doc(projectId).update({ notes });
-    }
-
-    // --- Link megnyitása ---
-    window.openLink = function(id) {
-      const input = document.getElementById(id);
-      const url = input.value.trim();
-      if (url) {
-        window.open(url.startsWith('http') ? url : 'https://' + url, '_blank');
-      } else {
-        alert('Adj meg egy érvényes linket!');
-      }
+    /* Link megnyitás */
+    function openLink(id){
+      const u=document.getElementById(id).value.trim();
+      if(u) window.open(/^https?:\/\//.test(u)?u:'https://'+u,'_blank');
+      else alert('Adj meg egy érvényes URL-t!');
     }
   </script>
 </body>
