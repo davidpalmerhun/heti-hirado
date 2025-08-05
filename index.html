@@ -72,7 +72,7 @@
     <button class="button" onclick="addProject()">+ Projekt hozzáadása</button>
   </div>
 
-  <!-- FIREBASE SDK SCRIPTS -->
+  <!-- FIREBASE SDK SCRIPTS (NEM MODULE!) -->
   <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js"></script>
   <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-storage.js"></script>
@@ -90,8 +90,7 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const storage = firebase.storage();
-  </script>
-  <script>
+
     // -------- FIREBASE ALAP: REALTIME RENDER --------
     const projectsRef = db.collection("projects");
 
@@ -162,36 +161,36 @@
     }
 
     // Projekt CRUD
-    function addProject() {
+    window.addProject = function() {
       projectsRef.add({
         organizer: "", city: "", link: "",
         notes: [], created: new Date().toISOString()
       });
     }
-    function deleteProject(id) {
+    window.deleteProject = function(id) {
       if (confirm("Biztosan törlöd ezt a projektet?")) {
         projectsRef.doc(id).delete();
       }
     }
-    function updateField(id, field, value) {
+    window.updateField = function(id, field, value) {
       projectsRef.doc(id).update({ [field]: value });
     }
 
     // Vázlatpont CRUD
-    async function addNote(projectId) {
+    window.addNote = async function(projectId) {
       const projectDoc = await projectsRef.doc(projectId).get();
       const notes = projectDoc.exists && projectDoc.data().notes ? projectDoc.data().notes : [];
       notes.push({ text: "", files: [], comments: [] });
       projectsRef.doc(projectId).update({ notes });
     }
-    async function deleteNote(projectId, noteIdx) {
+    window.deleteNote = async function(projectId, noteIdx) {
       const projectDoc = await projectsRef.doc(projectId).get();
       const notes = projectDoc.data().notes || [];
       if (!confirm("Biztosan törlöd ezt a vázlatpontot?")) return;
       notes.splice(noteIdx, 1);
       projectsRef.doc(projectId).update({ notes });
     }
-    async function updateNote(projectId, noteIdx, value) {
+    window.updateNote = async function(projectId, noteIdx, value) {
       const projectDoc = await projectsRef.doc(projectId).get();
       const notes = projectDoc.data().notes || [];
       notes[noteIdx].text = value;
@@ -199,7 +198,7 @@
     }
 
     // Fájlok feltöltése, törlése
-    async function handleFileUpload(input, projectId, noteIdx) {
+    window.handleFileUpload = async function(input, projectId, noteIdx) {
       const files = input.files;
       if (!files.length) return;
       const projectDoc = await projectsRef.doc(projectId).get();
@@ -216,7 +215,7 @@
       projectsRef.doc(projectId).update({ notes });
       input.value = ""; // Reset file input
     }
-    async function removeFile(projectId, noteIdx, fileIdx) {
+    window.removeFile = async function(projectId, noteIdx, fileIdx) {
       const projectDoc = await projectsRef.doc(projectId).get();
       const notes = projectDoc.data().notes || [];
       const file = notes[noteIdx].files[fileIdx];
@@ -228,7 +227,7 @@
     }
 
     // Kommentek
-    async function addCommentThread(projectId, noteIdx, btn) {
+    window.addCommentThread = async function(projectId, noteIdx, btn) {
       const name = "Ádám";
       const text = prompt("Írd be a kommentet:");
       if (!text) return;
@@ -237,7 +236,7 @@
       notes[noteIdx].comments = (notes[noteIdx].comments || []).concat([{ name, text }]);
       projectsRef.doc(projectId).update({ notes });
     }
-    async function deleteComment(projectId, noteIdx, ci) {
+    window.deleteComment = async function(projectId, noteIdx, ci) {
       const projectDoc = await projectsRef.doc(projectId).get();
       const notes = projectDoc.data().notes || [];
       notes[noteIdx].comments.splice(ci, 1);
@@ -245,7 +244,7 @@
     }
 
     // Link megnyitása
-    function openLink(id) {
+    window.openLink = function(id) {
       const input = document.getElementById(id);
       const url = input.value.trim();
       if (url) {
